@@ -4,7 +4,8 @@
   "description": "this is a blog website made with node express and mongodb in the backend and reactjs in the frontend",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "nodemon server.js",
+    "start:prod": "NODE_ENV=production nodemon server.js"
   },
   "keywords": [
     "node",
