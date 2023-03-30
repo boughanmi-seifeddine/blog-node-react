@@ -1,5 +1,6 @@
 const express = require('express');
 const blogController = require('./../controllers/blogController');
+const authController = require('./../controllers/authController');
 
 
 const router = express.Router();
@@ -7,13 +8,13 @@ const router = express.Router();
 
 router
     .route('/')
-    .get(blogController.getAllBlogs)
-    .post(blogController.createBlog)
+    .get(authController.protect, blogController.getAllBlogs)
+    .post(authController.protect, blogController.createBlog)
 router
     .route('/:id')
-    .get(blogController.getBlog)
-    .patch(blogController.updateBlog)
-    .delete(blogController.deleteBlog);
+    .get(authController.protect, authController.restrictTo('admin'), blogController.getBlog)
+    .patch(authController.protect, authController.restrictTo('admin'), blogController.updateBlog)
+    .delete(authController.protect, authController.restrictTo('admin'), blogController.deleteBlog);
 
 
 module.exports = router;

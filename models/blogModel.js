@@ -14,6 +14,9 @@ const blogSchema = new mongoose.Schema({
             type: String,
             required: [true, 'Please tell us your name!']
         },
+        age: {
+            type: Number
+        },
         title: {
             type: String,
             trim: true,
