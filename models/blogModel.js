@@ -40,6 +40,10 @@ const blogSchema = new mongoose.Schema({
             type: Boolean,
             default: false
         },
+        categories: {
+            type: Array,
+            required: false,
+        },
         slug: String,
         preview: String
     },

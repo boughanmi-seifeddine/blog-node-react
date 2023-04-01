@@ -8,11 +8,11 @@ const router = express.Router();
 
 router
     .route('/')
-    .get(authController.protect, blogController.getAllBlogs)
+    .get(blogController.getAllBlogs)
     .post(authController.protect, blogController.createBlog)
 router
     .route('/:id')
-    .get(authController.protect, authController.restrictTo('admin'), blogController.getBlog)
+    .get(blogController.getBlog)
     .patch(authController.protect, authController.restrictTo('admin'), blogController.updateBlog)
     .delete(authController.protect, authController.restrictTo('admin'), blogController.deleteBlog);
 
