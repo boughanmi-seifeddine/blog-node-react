@@ -12,19 +12,16 @@ export default function Post({post}) {
 
       <div className="postInfo">
         <div className="postCats">
-          <span className="postCat">
+          {post.categories.map((cat)=>{
+            return (<span className="postCat">
             <Link className="link" to="/posts?cat=Music">
-              Music
+             {cat}
             </Link>
-          </span>
-          <span className="postCat">
-            <Link className="link" to="/posts?cat=Music">
-              Life
-            </Link>
-          </span>
+          </span>)
+          })}
         </div>
         <span className="postTitle">
-          <Link to="/post/abc" className="link">
+          <Link to={`/post/${post._id}`} className="link">
            {post.title ? post.title : ""}
           </Link>
         </span>
