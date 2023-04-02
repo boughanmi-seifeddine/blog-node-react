@@ -6,7 +6,7 @@ import axios from "axios";
 import { useLocation } from "react-router";
 
 export default function Single() {
-    const [post, setPost] = useState([])
+    const [post, setPost] = useState({})
     const {pathname} = useLocation()
     const postId = pathname.split('/')[2]
 
@@ -20,7 +20,7 @@ export default function Single() {
 
   return (
     <div className="single">
-      <SinglePost />
+      <SinglePost post = {post} />
       <Sidebar />
     </div>
   );

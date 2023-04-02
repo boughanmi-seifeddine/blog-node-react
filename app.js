@@ -54,10 +54,13 @@ app.use(
 
 const userRouter = require('./routes/userRoutes');
 const blogRouter = require('./routes/blogRoutes');
+const categoryRouter = require('./routes/categoryRoutes');
 
 // 3) ROUTES
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/blogs', blogRouter);
+app.use('/api/v1/categories', categoryRouter);
+
 app.all('*', (req, res, next) => {
     next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
