@@ -4,27 +4,48 @@ import Posts from "../../components/posts/Posts";
 import Sidebar from "../../components/sidebar/Sidebar";
 import "./homepage.css";
 import axios from 'axios'
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
+
+
 export default function Homepage() {
+  const getCookie = (name)=>{
+      return document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || '';
+  }
   const location = useLocation();
     const [posts, setPosts] = useState([]);
-  console.log(location);
 
 
     useEffect( () => {
+        const jwtToken = getCookie('jwt')
         const getPosts = async () => {
-            const res = await axios.get('/api/v1/blogs')
-            setPosts(res.data.data.blogs)
+            try {
+                const res = await axios.get('/api/v1/blogs', {
+                    headers: {
+                        'authorization': `Bearer ${jwtToken}`
+                    }
+                })
+                setPosts(res.data.data.blogs)
+            } catch (err) {
+                if (err) {
+                    if (err.response.data.message === 'jwt expired') {
+                        const res = await axios.post('/api/v1/users/refresh', {refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0MmI0M2FhZTFiM2IzNWU1MGEwMjNiMSIsImlhdCI6MTY4MDU2NTI5MywiZXhwIjoxNjg4MzQxMjkzfQ._jkNYhajvQGxEy8LPoWtMelqlIUymY_SUSCnR5nlwPY"}, {
+                            headers: {
+                                'authorization': `Bearer ${jwtToken}`
+                            }
+                        })
+                    }
+                }
+            }
 
         };
-        getPosts()
+        getPosts().then()
     }, []);
     console.log(posts)
   return (
     <>
       <Header />
       <div className="home">
-              <Posts posts={posts}/>
+              <Posts posts={posts} />
           <Sidebar/>
       </div>
     </>
