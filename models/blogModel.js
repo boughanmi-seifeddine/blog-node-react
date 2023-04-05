@@ -12,7 +12,6 @@ const opts = {
 const blogSchema = new mongoose.Schema({
         author: {
             type: String,
-            required: [true, 'Please tell us your name!']
         },
         age: {
             type: Number
@@ -28,7 +27,7 @@ const blogSchema = new mongoose.Schema({
             type: String,
             trim: true,
             required: [true, 'Please provide a title for the blog'],
-            minlength: [40, 'A blog content must have more or equal then 10 characters']
+            minlength: [40, 'A blog content must have more or equal then 40 characters']
         },
         imageCover: {
             type: String,
@@ -40,7 +39,7 @@ const blogSchema = new mongoose.Schema({
             type: Boolean,
             default: false
         },
-        categories: {
+            categories: {
             type: Array,
             required: false,
         },

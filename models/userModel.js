@@ -46,12 +46,17 @@ const userSchema = new mongoose.Schema({
         select: false
     }
 });
+// when delete user delete his refreshtocken todo
+
 userSchema.pre('save', async function(next) {
     // Only run this function if password was actually modified
     if (!this.isModified('password')) return next();
 
-    // Hash the password with cost of 12
-    this.password = await bcrypt.hash(this.password, 12);
+    // Generate a salt with cost of 12 to prevent from rainbow table attack
+    const salt = await bcrypt.genSalt(12)
+
+    // Hash the password with generated salt
+    this.password = await bcrypt.hash(this.password, salt);
 
     // Delete passwordConfirm field
     this.passwordConfirm = undefined;
