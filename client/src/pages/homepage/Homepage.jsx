@@ -40,12 +40,11 @@ export default function Homepage() {
         };
         getPosts().then()
     }, []);
-    console.log(posts)
   return (
     <>
       <Header />
       <div className="home">
-              <Posts posts={posts} />
+              <Posts  />
           <Sidebar/>
       </div>
     </>

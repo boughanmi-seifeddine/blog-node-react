@@ -22,6 +22,24 @@ exports.getAllBlogs = catchAsync(async (req, res, next) => {
         }
     });
 });
+exports.getMyBlogs = catchAsync(async (req, res, next) => {
+    // EXECUTE QUERY
+    const features = new APIFeatures(Blog.find({user:req.user.id}), req.query)
+        .filter()
+        .sort()
+        .limitFields()
+        .paginate();
+    const blogs = await features.query;
+
+    // SEND RESPONSE
+    res.status(200).json({
+        status: 'success',
+        results: blogs.length,
+        data: {
+            blogs
+        }
+    });
+});
 exports.createBlog = catchAsync(async (req, res, next) => {
     // Finds the validation errors in this request before it goes to mongoose model
     const errors = validationResult(req);
@@ -29,14 +47,14 @@ exports.createBlog = catchAsync(async (req, res, next) => {
         return next(new AppError(JSON.stringify(errors.array().map((err) => err.msg)), 404));
     }
     // Extract variables to not save the entire request body
-    const {author, title, content, imageCover, categories} = req.body
-    console.log({author, title, content, imageCover, categories})
+    const {author, title, content, imageCover, categories, user} = req.body
     const newBlog = await Blog.create({
         author,
         title,
         content,
         imageCover,
-        categories
+        categories,
+        user: (req.user.role === 'admin' && user) ? user : req.user.id
     })
     res.status(201).json({
         status: 'success',

@@ -13,6 +13,10 @@ const blogSchema = new mongoose.Schema({
         author: {
             type: String,
         },
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref : 'users'
+        },
         age: {
             type: Number
         },
