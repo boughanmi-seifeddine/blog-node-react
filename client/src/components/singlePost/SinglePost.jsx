@@ -1,7 +1,9 @@
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import "./singlePost.css";
-
+import {Context} from "../../context/Context";
+import {useContext} from "react";
 export default function SinglePost({post}) {
+  let { user} = useContext(Context);
   return (
     <div className="singlePost">
       <div className="singlePostWrapper">
@@ -10,12 +12,18 @@ export default function SinglePost({post}) {
             src={post.imageCover}
             alt=""
         />}
+        {/*user && user.name == post.author*/}
         <h1 className="singlePostTitle">
           {post.title}
-          <div className="singlePostEdit">
-            <i className="singlePostIcon far fa-edit"></i>
-            <i className="singlePostIcon far fa-trash-alt"></i>
-          </div>
+          { true &&  <div className="singlePostEdit">
+            <Link className="link" to={`/posts/${post._id}/write`} >
+              <i className="singlePostIcon far fa-edit"></i>
+            </Link>
+            {/* <Link className="link" to={`/posts/write/${post._id}`}>
+              <i className="singlePostIcon far fa-trash-alt"></i>
+            </Link>*/}
+          </div> }
+
         </h1>
         <div className="singlePostInfo">
           <span>

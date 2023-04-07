@@ -2,12 +2,18 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { ContextProvider } from "./context/Context";
+import {PostContextProvider} from "./context/post/postContextState";
+import { BrowserRouter } from 'react-router-dom'
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
       <ContextProvider>
-          <App />
+      <PostContextProvider>
+          <BrowserRouter>
+              <App />
+          </BrowserRouter>
+      </PostContextProvider>
       </ContextProvider>
   </React.StrictMode>
 );

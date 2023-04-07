@@ -7,8 +7,8 @@ const router = express.Router();
 
 router
     .route('/')
-    .get(authController.protect, blogController.getAllBlogs)
-    .post(
+    .get(blogController.getAllBlogs)
+    .post(authController.protect,
         body('author').not().isEmpty().trim().escape(),
         body('title').not().isEmpty().withMessage('must provide title').trim().escape()
             .isLength({min: 10}).withMessage('must have at least 10 characters')
@@ -22,6 +22,9 @@ router
             }),
         body('content', "author not provided ..").not().isEmpty().trim().escape()
         , blogController.createBlog)
+router
+    .route('/mine')
+    .get(authController.protect, blogController.getMyBlogs)
 router
     .route('/:id')
     .get(blogController.getBlog)
