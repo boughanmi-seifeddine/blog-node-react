@@ -25,6 +25,7 @@ function App() {
                         <Route path="write" element={<ProtectedRoute user={user}><Write/></ProtectedRoute>}/>
                         <Route path=":id/write" element={<ProtectedRoute user={user}><Write/></ProtectedRoute>}/>
                     </Route>
+                    <Route path='settings' element={<ProtectedRoute user={user}><Settings/></ProtectedRoute>} />
                     <Route path='register' element={<Register/>}/>
                     <Route path="login" element={<Login/>}/>
                 </Route>
