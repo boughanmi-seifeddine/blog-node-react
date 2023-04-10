@@ -1,10 +1,16 @@
 import "./topbar.css";
 import React, {useContext} from "react";
-import {Context} from "../../context/Context";
-import {Outlet, Link} from "react-router-dom";
+import AuthContext from "../../context/auth/authContext"
+import {Outlet, Link, useNavigate} from "react-router-dom";
 
-export default function Topbar() {
-    let {user} = useContext(Context);
+export default function Topbar({user}) {
+    const navigate = useNavigate()
+    const {logoutUser} = useContext(AuthContext)
+    const handleLogout = async (e)=>{
+        e.preventDefault()
+      const data = await logoutUser()
+        data ? navigate('/login') : console.log('error in logout')
+    }
     return (
         <>
             <div className="top">
@@ -22,7 +28,7 @@ export default function Topbar() {
                         <li className="topListItem">ABOUT</li>
                         <li className="topListItem">CONTACT</li>
                         {user &&  <li className="topListItem"><Link className="link" to="/posts/write"> WRITE </Link></li>}
-                        {user && <li className="topListItem">LOGOUT</li>}
+                        {user && <li  className="topListItem"><Link className="link" to="/logout"> LOGOUT </Link></li>}
 
                     </ul>
                 </div>

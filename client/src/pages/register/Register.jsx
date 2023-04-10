@@ -1,72 +1,82 @@
 import "./register.css"
-import { useState } from "react";
-import axios from "axios";
-import { Link } from "react-router-dom";
+import React, {useContext, useState} from "react";
+import {Link, useNavigate} from "react-router-dom";
+import AuthContext from "../../context/auth/authContext";
+import AlertContext from "../../context/alert/alertContext";
+import Alert from "../../components/alert/alert";
 
 export default function Register() {
-    const [name, setName] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [passwordConfirm, setPasswordConfirm] = useState("");
+    const { registerUser } = useContext(AuthContext);
+    const {setAlert} = useContext(AlertContext);
+    const [currentUser, setCurrentUser] = useState({});
     const [error, setError] = useState(false);
-
+    const navigate = useNavigate()
+    const handleUser = (e)=>{
+     e.preventDefault()
+        setCurrentUser({...currentUser, [e.target.name]:e.target.value})
+    }
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(false);
-        try {
-            const res = await axios.post("/api/v1/users/signup", {
-                name,
-                email,
-                password,
-                passwordConfirm
-            });
-            res.data && window.location.replace("/login");
-        } catch (err) {
+        const res = await registerUser(currentUser)
+        //res ? navigate('/login') : setError(true);
+        if(res?.data){
+            navigate('/login')
+        }else{
             setError(true);
+            setAlert(res?.message || 'something went wrong !!!', 'danger', 5000)
         }
     };
     return (
-        <div className="register">
-            <span className="registerTitle">Register</span>
-            <form className="registerForm" onSubmit={handleSubmit}>
-                <label>Username</label>
-                <input
-                    type="text"
-                    className="registerInput"
-                    placeholder="Enter your username..."
-                    onChange={(e) => setName(e.target.value)}
-                />
-                <label>Email</label>
-                <input
-                    type="text"
-                    className="registerInput"
-                    placeholder="Enter your email..."
-                    onChange={(e) => setEmail(e.target.value)}
-                />
-                <label>Password</label>
-                <input
-                    type="password"
-                    className="registerInput"
-                    placeholder="Enter your password..."
-                    onChange={(e) => setPassword(e.target.value)}
-                />
-                <label>Confirm Password</label>
-                <input
-                    type="password"
-                    className="registerInput"
-                    placeholder="Confirm your password..."
-                    onChange={(e) => setPasswordConfirm(e.target.value)}
-                />
-                <button className="registerButton" type="submit">
-                    Register
+        <>
+            {<Alert ></Alert>}
+            <div className="register">
+                <span className="registerTitle">Register</span>
+                <form className="registerForm" onSubmit={handleSubmit}>
+                    <label>Username</label>
+                    <input
+                        name="name"
+                        type="text"
+                        className="registerInput"
+                        placeholder="Enter your username..."
+                        onChange={handleUser}
+                    />
+                    <label>Email</label>
+                    <input
+                        name="email"
+                        type="text"
+                        className="registerInput"
+                        placeholder="Enter your email..."
+                        onChange={handleUser}
+                    />
+                    <label>Password</label>
+                    <input
+                        name="password"
+                        type="password"
+                        className="registerInput"
+                        placeholder="Enter your password..."
+                        onChange={handleUser}
+                    />
+                    <label>Confirm Password</label>
+                    <input
+                        name="passwordConfirm"
+                        type="password"
+                        className="registerInput"
+                        placeholder="Confirm your password..."
+                        onChange={handleUser}
+                    />
+                    <button className="registerButton" type="submit">
+                        Register
+                    </button>
+                </form>
+                <button className="registerLoginButton">
+                    <Link className="link" to="/login">
+                        Login
+                    </Link>
                 </button>
-            </form>
-            <button className="registerLoginButton">
-                <Link className="link" to="/login">
-                    Login
-                </Link>
-            </button>
-            {error && <span style={{color:"red", marginTop:"10px"}}>Something went wrong!</span>}
-        </div>
+                {error && <span style={{color: "red", marginTop: "10px"}}>Something went wrong!</span>}
+            </div>
+        </>
+
     );
 }

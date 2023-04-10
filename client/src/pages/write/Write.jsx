@@ -1,44 +1,16 @@
 import "./write.css";
-import { useLocation } from "react-router";
-import {PostContext} from "../../context/post/postContextState"
 import React, {useContext, useEffect, useState} from "react";
 import {Context} from "../../context/Context";
-import {Navigate, Route, Routes, useParams} from "react-router-dom";
-import Topbar from "../../components/topbar/Topbar";
-import Homepage from "../homepage/Homepage";
-import Register from "../register/Register";
-import Login from "../login/Login";
+import PostContext from "../../context/post/postContext";
+import {useParams} from "react-router-dom";
 
 export default function Write() {
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [post, setPost] = useState({});
-  const {getPosts, addPost} = useContext(PostContext);
-  let {user} = useContext(Context);
-  const {pathname} = useLocation()
+
   const {id: postId} = useParams()
-  const getPostsHandler = async ()=>{
-    try {
-      return await getPosts()
-    }catch (e){
-      console.log(e)
-    }
-
-  }
-  /*useEffect(() => {
-    setgetPostsHandler()
-    debugger
-    getPosts().then((posts)=>{
-      debugger
-        setPost(posts.filter((p)=> p._id === postId))
-        setTitle(post.title)
-        setContent(post.content)
-      debugger
-    })
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])*/
-
+  const {posts, addPost} = useContext(PostContext)
+  const post = posts.filter((p) => p._id === postId)?.shift()
+  const [title, setTitle] = useState(post ? post.title : "")
+  const [content, setContent] = useState(post ? post.content : "")
 
   const onSubmit = e => {
     e.preventDefault();

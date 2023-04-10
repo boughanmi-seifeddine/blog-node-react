@@ -1,22 +1,16 @@
 import Sidebar from "../../components/sidebar/Sidebar";
 import SinglePost from "../../components/singlePost/SinglePost";
 import "./single.css";
-import React, {useState, useEffect} from "react";
-import axios from "axios";
-import { useLocation, useParams } from "react-router";
+import React, {useEffect, useContext} from "react";
+import { useParams } from "react-router-dom";
+import PostContext from "../../context/post/postContext";
 
 export default function Single() {
-    const [post, setPost] = useState({})
-    const {pathname} = useLocation()
+    const {getPost, post} = useContext(PostContext);
     const {id : postId} = useParams()
     useEffect(()=>{
-      const getPost = async ()=>{
-          const res = await axios.get(`/api/v1/blogs/${postId}`)
-          setPost(res.data.data.blog)
-      }
-        getPost()
+        getPost(postId)
     },[postId])
-
   return (
     <div className="single">
       <SinglePost post = {post} />

@@ -3,12 +3,19 @@ const Reducer = (state, action) => {
     case 'GET_POSTS':
       return {
         ...state,
-        posts:action.payload
+        posts:action.payload,
+        post:{}
+      }
+      case 'GET_POST':
+      return {
+        ...state,
+        post:action.payload
       }
     case 'ADD_POST':
       return {
         ...state,
-        posts: [action.payload, ...state.posts]
+        posts: [action.payload, ...state.posts],
+        post: action.payload
       }
     case 'POST_ERROR':
       return {

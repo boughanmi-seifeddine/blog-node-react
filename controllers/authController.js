@@ -15,8 +15,8 @@ const {validationResult} = require("express-validator");
  * @param expiresIn
  * @returns string(jwt token)
  */
-const signToken = (id, secret, expiresIn) => {
-    return jwt.sign({id}, secret, {
+const signToken = (payload, secret, expiresIn) => {
+    return jwt.sign(payload, secret, {
         expiresIn
     });
 };
@@ -29,8 +29,8 @@ const validateRequestBody = (req, next) => {
     }
 }
 const createSendToken = (user, res) => {
-    const token = signToken(user._id, process.env.JWT_SECRET, process.env.JWT_EXPIRES_IN);
-    const refreshToken = signToken(user._id, process.env.JWT_REFRESH_SECRET, process.env.JWT_REFRESH_EXPIRES_IN);
+    const token = signToken({_id: user._id, role: user.role}, process.env.JWT_SECRET, process.env.JWT_EXPIRES_IN);
+    const refreshToken = signToken({_id: user._id, role: user.role}, process.env.JWT_REFRESH_SECRET, process.env.JWT_REFRESH_EXPIRES_IN);
     const cookieOptions = {
         expires: new Date(
             Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
@@ -54,6 +54,68 @@ const addUserToken = async (user, refreshToken, next) => {
         return next(new AppError('refresh token not found', 400));
     }
 };
+
+exports.protect = catchAsync(async (req, res, next) => {
+    // 1) Getting token and check of it's there
+    // get token from cookie
+    let token = req.cookies['jwt'];
+    // get token from header
+    /* if (
+         req.headers.authorization &&
+         req.headers.authorization.startsWith('Bearer')
+     ) {
+         token = req.headers.authorization.split(' ')[1];
+     }*/
+
+    if (!token) {
+        return next(
+            new AppError('You are not logged in! Please log in to get access.', 401)
+        );
+    }
+    // 2) Verification token
+    const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+    if(!decoded) return next(
+        new AppError(
+            'The user belonging to this token does no longer exist.',
+            401
+        )
+    );
+    req.user = {_id: decoded.id, role: decoded.role}
+    /* // 3) Check if user still exists
+     // whaats the use uf it todo
+     const currentUser = await User.findById(decoded.id);
+     if (!currentUser) {
+         return next(
+             new AppError(
+                 'The user belonging to this token does no longer exist.',
+                 401
+             )
+         );
+     }
+
+     // 4) Check if user changed password after the token was issued
+     if (currentUser.changedPasswordAfter(decoded.iat)) {
+         return next(
+             new AppError('User recently changed password! Please log in again.', 401)
+         );
+     }*/
+
+    // GRANT ACCESS TO PROTECTED ROUTE
+    next();
+});
+
+exports.restrictTo = (...roles) => {
+    return (req, res, next) => {
+        // roles ['admin', 'lead-guide']. role='user'
+        if (!roles.includes(req.user.role)) {
+            return next(
+                new AppError('You do not have permission to perform this action', 403)
+            );
+        }
+
+        next();
+    };
+};
 exports.signup = catchAsync(async (req, res, next) => {
     // Finds the validation errors in this request before it goes to mongoose model
     validateRequestBody(req, next)
@@ -66,17 +128,9 @@ exports.signup = catchAsync(async (req, res, next) => {
         password,
         passwordConfirm
     });
-
-    const {token, refreshToken} = createSendToken(newUser, res);
-
-    // add user refresh token to userToken
-    const userToken = await addUserToken(newUser, refreshToken, next)
-    // Remove password from output
     newUser.password = undefined;
     res.status(201).json({
         status: 'success',
-        token,
-        refreshToken,
         data: {
             newUser
         }
@@ -156,59 +210,7 @@ exports.refresh = catchAsync(async (req, res, next) => {
     });
 
 });
-exports.protect = catchAsync(async (req, res, next) => {
-    // 1) Getting token and check of it's there
-    let token;
-    if (
-        req.headers.authorization &&
-        req.headers.authorization.startsWith('Bearer')
-    ) {
-        token = req.headers.authorization.split(' ')[1];
-    }
 
-    if (!token) {
-        return next(
-            new AppError('You are not logged in! Please log in to get access.', 401)
-        );
-    }
-    // 2) Verification token
-    const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-
-    // 3) Check if user still exists
-    const currentUser = await User.findById(decoded.id);
-    if (!currentUser) {
-        return next(
-            new AppError(
-                'The user belonging to this token does no longer exist.',
-                401
-            )
-        );
-    }
-
-    // 4) Check if user changed password after the token was issued
-    if (currentUser.changedPasswordAfter(decoded.iat)) {
-        return next(
-            new AppError('User recently changed password! Please log in again.', 401)
-        );
-    }
-
-    // GRANT ACCESS TO PROTECTED ROUTE
-    req.user = currentUser;
-    next();
-});
-
-exports.restrictTo = (...roles) => {
-    return (req, res, next) => {
-        // roles ['admin', 'lead-guide']. role='user'
-        if (!roles.includes(req.user.role)) {
-            return next(
-                new AppError('You do not have permission to perform this action', 403)
-            );
-        }
-
-        next();
-    };
-};
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {
     // 1) Get user based on POSTed email

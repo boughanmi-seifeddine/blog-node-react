@@ -2,7 +2,7 @@ import Post from "../post/Post";
 import PropTypes from "prop-types"
 import "./posts.css";
 import React, {useContext, useEffect, useState} from "react";
-import {PostContext} from "../../context/post/postContextState"
+import PostContext from "../../context/post/postContext"
 
 export default function Posts() {
     let {posts, getPosts} = useContext(PostContext);

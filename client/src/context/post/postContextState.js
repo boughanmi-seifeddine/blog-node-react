@@ -1,18 +1,19 @@
-import React, {useEffect, createContext, useReducer} from "react";
+import React, {useEffect, useReducer} from "react";
 import postReducer from "./Reducer";
-import uuid from "uuid"
+import PostContext from "./postContext"
 import axios from 'axios';
 import {ADD_POST, DELETE_POST, SET_CURRENT, CLEAR_CURRENT, UPDATE_POST, FILTER_POST, CLEAR_FILTER} from "../types"
-import {ContextProvider} from "../Context";
+
+
 const INITIAL_STATE = {
-     posts: []
+    posts:  [],
+    post:{}
 };
-
-export const PostContext = createContext(INITIAL_STATE);
 export const PostContextProvider = props => {
-
     const [state, dispatch] = useReducer(postReducer, INITIAL_STATE);
-
+    useEffect(() => {
+        localStorage.setItem("posts", JSON.stringify(state.posts));
+    }, [state.posts]);
     // get posts
     async function getPosts() {
         try {
@@ -28,7 +29,6 @@ export const PostContextProvider = props => {
             });
         }
     }
-
     // add post
     async function addPost(post) {
         const config = {
@@ -52,15 +52,30 @@ export const PostContextProvider = props => {
         }
     }
 
+    // getPost post
+    async function getPost(postId) {
+        try {
+            const res = await axios.get(`/api/v1/blogs/${postId}`);
+            dispatch({
+                type: 'GET_POST',
+                payload: res.data.data.blog
+            });
+        } catch (err) {
+            dispatch({
+                type: 'POST_ERROR',
+                payload: err.response.data.error
+            });
+        }
+    }
     // delete post
-
-
 
     // update post
     return (
         <PostContext.Provider
             value={{
                 posts: state.posts,
+                post: state.post,
+                getPost,
                 getPosts,
                 addPost
             }}
